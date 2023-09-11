@@ -1,0 +1,48 @@
+
+name: CLI to deploy serverless application on aws
+
+on:
+  push:
+    branches: [ "main", "develop"]
+  pull_request:
+    branches: [ "main", "develop"]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-to-fargate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout for deployment
+        uses: actions/checkout@v3.1.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-profile-name: ${{ secrets.AWS_PROFILE_NAME }}
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Serverless framework
+        run: npm install -g serverless
+
+      - name: Install serverless-fargate plugin
+        run: serverless plugin install -n serverless-fargate
+
+      - name: deploy application
+        run: sls deploy --stage dev --profile DDev-Power --DBuser ${{ secrete.DB_USER }} --DBpassword ${{ secrete.DB_password }}
+
+      # - name: Remove serverless stack
+      #   run: sls remove

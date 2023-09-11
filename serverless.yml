@@ -1,0 +1,147 @@
+service: express-rds
+
+plugins:
+  - serverless-fargate
+
+custom:
+  rds:
+    database: demoRDSMysql1
+    user: ${opt:DBuser}admin
+    password: ${opt:DBpassword}root-7648-rds-mysql
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  profile: ${opt:profile, 'DDev-Power'}
+  ecr:
+    images:
+      rds-express:
+        path: ./app-express/
+        file: Dockerfile
+
+fargate:
+  clusterName: express-fargate-cluster
+  containerInsights: true
+  memory: '4 GB'
+  cpu: 2048
+  architecture: X86_64
+  vpc:
+    assignPublicIp: true
+    securityGroupIds:
+      - sg-006f415a1d30d62d1
+      # - Fn::GetAtt: [SecurityGroup0, GroupId]
+    subnetIds:
+      - subnet-0cb2c1303b4628af8
+      # - Fn::GetAtt: [Subnet1, SubnetId]
+  tasks:
+    rds-express-fargate-task:
+      name: rds-express-fargate-task
+      image: rds-express
+      memory: '2 GB'
+      cpu: 1024
+      vpc:
+        securityGroupIds:
+          - sg-006f415a1d30d62d1
+          # - Fn::GetAtt: [SecurityGroup0, GroupId]
+        subnetIds:
+          - subnet-0cb2c1303b4628af8
+          # - Fn::GetAtt: [Subnet1, SubnetId]
+        assignPublicIp: true
+      service:
+        desiredCount: 1
+        maximumPercent: 200
+      cloudFormationResource:
+        container:
+          PortMappings:
+            - ContainerPort: 8080
+              HostPort: 8080
+
+resources:
+  Resources:
+    # Express-VPC:
+    #   Type: AWS::EC2:VPC
+    #   Properties: 
+    #     CidrBlock: 10.0.0.0/24
+
+    # InternetGateway:
+    #   Type: AWS::EC2::InternetGateway
+
+    # AttachGateway:
+    #   Type: AWS::EC2::VPCGatewayAttachment
+    #   Properties:
+    #     VpcId: 
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+    #     InternetGatewayId:
+    #       Fn::GetAtt: [InternetGateway, InternetGatewayId]
+
+    # Subnet1:
+    #   Type: AWS::EC2::Subnet
+    #   Properties:
+    #     VpcId:
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+    #     CidrBlock: 10.0.0.16/28
+
+    # Subnet2:
+    #   Type: AWS::EC2::Subnet
+    #   Properties:
+    #     VpcId:
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+    #     CidrBlock: 10.0.0.32/28
+
+    # SecurityGroup0:
+    #   Type: AWS::EC2::SecurityGroup
+    #   Properties:
+    #     GroupDescription: My Security Group for express app
+    #     VpcId:
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+
+    # SecurityGroup1:
+    #   Type: AWS::EC2::SecurityGroup
+    #   Properties:
+    #     GroupDescription: My Security Group for RDS
+    #     VpcId:
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+    #     SecurityGroupIngress:
+    #     - CidrIp: 10.0.0.16/28
+    #       IpProtocol: tcp
+    #       FromPort: 3306
+    #       ToPort: 3306
+
+    # RouteTable:
+    #   Type: AWS::EC2::RouteTable
+    #   Properties:
+    #     VpcId:
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+
+    # RouteToInternetGateway:
+    #   Type: AWS::EC2::Route
+    #   DependsOn: AttachGateway
+    #   Properties:
+    #     RouteTableId: !Ref MyRouteTable
+    #     DestinationCidrBlock: 0.0.0.0/0
+    #     GatewayId: !Ref InternetGateway
+
+    # RouteToLocal:
+    #   Type: AWS::EC2::Route
+    #   Properties:
+    #     RouteTableId: !Ref MyRouteTable
+    #     DestinationCidrBlock: 
+    #       Fn::GetAtt: [Express-VPC, CidrBlock]
+    #     LocalGatewayId: 
+    #       Fn::GetAtt: [Express-VPC, VpcId]
+
+    DemoRDSMySQL:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        DBName: ${self:custom.rds.database}
+        MasterUsername: ${self:custom.rds.user}
+        MasterUserPassword: ${self:custom.rds.password}
+        Engine: MySQL
+        AllocatedStorage: 5
+        DBInstanceClass: db.t2.small
+        PubliclyAccessible: false
+        VPCSecurityGroups:
+          - sg-006f415a1d30d62d1
+          # - Fn::GetAtt: [SecurityGroup1, GroupId]
