@@ -42,7 +42,7 @@ jobs:
         run: serverless plugin install -n serverless-fargate
 
       - name: deploy application
-        run: sls deploy --stage dev --profile DDev-Power --DBuser ${{ secrete.DB_USER }} --DBpassword ${{ secrete.DB_password }}
+        run: sls deploy --stage dev --profile DDev-Power --DBuser ${{ secrets.DB_USER }} --DBpassword ${{ secrets.DB_password }}
 
       # - name: Remove serverless stack
       #   run: sls remove
