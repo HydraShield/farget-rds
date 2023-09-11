@@ -9,6 +9,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_password }}
 
 jobs:
   deploy-to-fargate:
@@ -42,7 +44,7 @@ jobs:
         run: serverless plugin install -n serverless-fargate
 
       - name: deploy application
-        run: sls deploy --stage dev --profile DDev-Power --DBuser ${{ secrets.DB_USER }} --DBpassword ${{ secrets.DB_password }}
+        run: sls deploy --stage dev
 
       # - name: Remove serverless stack
       #   run: sls remove

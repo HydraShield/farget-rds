@@ -6,8 +6,8 @@ plugins:
 custom:
   rds:
     database: demoRDSMysql1
-    user: ${opt:DBuser}
-    password: ${opt:DBpassword}
+    user: ${env:DB_USER}
+    password: ${env:DB_PASSWORD}
 
 provider:
   name: aws
