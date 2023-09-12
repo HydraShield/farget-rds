@@ -4,20 +4,6 @@ const User = require("./database/models/user")
 const app = express()
 app.use(express.json())
 
-syncDatabase().then(() => {
-  app.get('/users', (req, res) => {
-    console.log("Hello from Express")
-    res.status(200).json(User.findAll({ raw:true }))
-  })
-  
-  app.listen(8080, () => {
-    console.log('Express App Running on Port 8080')
-  })
-})
-.catch((error) => {
-  console.error(error)
-})
-
 const syncDatabase = async() => {
   try {
     await User.sync({ alter: true })
@@ -32,3 +18,18 @@ const syncDatabase = async() => {
     console.error(error)
   }
 }
+
+console.log('Express App Starting')
+syncDatabase().then(() => {
+  app.get('/users', (req, res) => {
+    console.log("Hello from Express")
+    res.status(200).json(User.findAll({ raw:true }))
+  })
+  
+  app.listen(8080, () => {
+    console.log('Express App Running on Port 8080')
+  })
+})
+.catch((error) => {
+  console.error(error)
+})
