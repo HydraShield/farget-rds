@@ -29,11 +29,9 @@ fargate:
   vpc:
     assignPublicIp: true
     securityGroupIds:
-      - sg-006f415a1d30d62d1
-      # - Fn::GetAtt: [SecurityGroup0, GroupId]
+      - Fn::GetAtt: [SecurityGroup0, GroupId]
     subnetIds:
-      - subnet-0cb2c1303b4628af8
-      # - Fn::GetAtt: [Subnet1, SubnetId]
+      - Fn::GetAtt: [Subnet1, SubnetId]
   tasks:
     rds-express-fargate-task:
       name: rds-express-fargate-task
@@ -42,11 +40,9 @@ fargate:
       cpu: 1024
       vpc:
         securityGroupIds:
-          - sg-006f415a1d30d62d1
-          # - Fn::GetAtt: [SecurityGroup0, GroupId]
+          - Fn::GetAtt: [SecurityGroup0, GroupId]
         subnetIds:
-          - subnet-0cb2c1303b4628af8
-          # - Fn::GetAtt: [Subnet1, SubnetId]
+          - Fn::GetAtt: [Subnet1, SubnetId]
         assignPublicIp: true
       service:
         desiredCount: 1
@@ -59,77 +55,77 @@ fargate:
 
 resources:
   Resources:
-    # Express-VPC:
-    #   Type: AWS::EC2:VPC
-    #   Properties: 
-    #     CidrBlock: 10.0.0.0/24
+    Express-VPC:
+      Type: AWS::EC2:VPC
+      Properties: 
+        CidrBlock: 10.0.0.0/24
 
-    # InternetGateway:
-    #   Type: AWS::EC2::InternetGateway
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
 
-    # AttachGateway:
-    #   Type: AWS::EC2::VPCGatewayAttachment
-    #   Properties:
-    #     VpcId: 
-    #       Fn::GetAtt: [Express-VPC, VpcId]
-    #     InternetGatewayId:
-    #       Fn::GetAtt: [InternetGateway, InternetGatewayId]
+    AttachGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: 
+          Fn::GetAtt: [Express-VPC, VpcId]
+        InternetGatewayId:
+          Fn::GetAtt: [InternetGateway, InternetGatewayId]
 
-    # Subnet1:
-    #   Type: AWS::EC2::Subnet
-    #   Properties:
-    #     VpcId:
-    #       Fn::GetAtt: [Express-VPC, VpcId]
-    #     CidrBlock: 10.0.0.16/28
+    Subnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+        CidrBlock: 10.0.0.16/28
 
-    # Subnet2:
-    #   Type: AWS::EC2::Subnet
-    #   Properties:
-    #     VpcId:
-    #       Fn::GetAtt: [Express-VPC, VpcId]
-    #     CidrBlock: 10.0.0.32/28
+    Subnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+        CidrBlock: 10.0.0.32/28
 
-    # SecurityGroup0:
-    #   Type: AWS::EC2::SecurityGroup
-    #   Properties:
-    #     GroupDescription: My Security Group for express app
-    #     VpcId:
-    #       Fn::GetAtt: [Express-VPC, VpcId]
+    SecurityGroup0:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: My Security Group for express app
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
 
-    # SecurityGroup1:
-    #   Type: AWS::EC2::SecurityGroup
-    #   Properties:
-    #     GroupDescription: My Security Group for RDS
-    #     VpcId:
-    #       Fn::GetAtt: [Express-VPC, VpcId]
-    #     SecurityGroupIngress:
-    #     - CidrIp: 10.0.0.16/28
-    #       IpProtocol: tcp
-    #       FromPort: 3306
-    #       ToPort: 3306
+    SecurityGroup1:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: My Security Group for RDS
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+        SecurityGroupIngress:
+        - CidrIp: 10.0.0.16/28
+          IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
 
-    # RouteTable:
-    #   Type: AWS::EC2::RouteTable
-    #   Properties:
-    #     VpcId:
-    #       Fn::GetAtt: [Express-VPC, VpcId]
+    RouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
 
-    # RouteToInternetGateway:
-    #   Type: AWS::EC2::Route
-    #   DependsOn: AttachGateway
-    #   Properties:
-    #     RouteTableId: !Ref MyRouteTable
-    #     DestinationCidrBlock: 0.0.0.0/0
-    #     GatewayId: !Ref InternetGateway
+    RouteToInternetGateway:
+      Type: AWS::EC2::Route
+      DependsOn: AttachGateway
+      Properties:
+        RouteTableId: !Ref MyRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
 
-    # RouteToLocal:
-    #   Type: AWS::EC2::Route
-    #   Properties:
-    #     RouteTableId: !Ref MyRouteTable
-    #     DestinationCidrBlock: 
-    #       Fn::GetAtt: [Express-VPC, CidrBlock]
-    #     LocalGatewayId: 
-    #       Fn::GetAtt: [Express-VPC, VpcId]
+    RouteToLocal:
+      Type: AWS::EC2::Route
+      Properties:
+        RouteTableId: !Ref MyRouteTable
+        DestinationCidrBlock: 
+          Fn::GetAtt: [Express-VPC, CidrBlock]
+        LocalGatewayId: 
+          Fn::GetAtt: [Express-VPC, VpcId]
 
     DemoRDSMySQL:
       Type: AWS::RDS::DBInstance
@@ -142,5 +138,4 @@ resources:
         DBInstanceClass: db.t2.small
         PubliclyAccessible: false
         VPCSecurityGroups:
-          - sg-006f415a1d30d62d1
-          # - Fn::GetAtt: [SecurityGroup1, GroupId]
+          - Fn::GetAtt: [SecurityGroup1, GroupId]
