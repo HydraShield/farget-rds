@@ -9,10 +9,10 @@ custom:
     user: ${env:DB_USER}
     password: ${env:DB_PASSWORD}
   vpc:
-    defaultVpcId: vpc-076cdf458d78cbf48
-    defaultSecurityGroup: sg-0198d538e73da6a38
-    defaultSubnetId: subnet-05117624ef4f1335b
-    defaultCidr: 172.31.0.0/20
+    defaultVpcId: vpc-0192d315eced25399
+    defaultSecurityGroup: sg-02f592e8908c5e3de
+    defaultSubnetId: subnet-0144263fc47c9300e
+    defaultCidr: 172.31.16.0/20
 
 provider:
   name: aws
