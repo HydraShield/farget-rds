@@ -9,8 +9,6 @@ app.get('/users', (req, res) => {
   res.status(200).json(User.findAll({ raw:true }))
 })
 
-await User.create
-
 app.listen(8080, () => {
   console.log('Express App Running on Port 8080')
 })
