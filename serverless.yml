@@ -8,10 +8,6 @@ custom:
     database: demoRDSMysql1
     user: ${env:DB_USER}
     password: ${env:DB_PASSWORD}
-  vpc:
-    defaultSecurityGroup: sg-02f592e8908c5e3de
-    defaultSubnetId: subnet-0144263fc47c9300e
-    defaultCidr: 172.31.16.0/20
 
 provider:
   name: aws
@@ -33,9 +29,9 @@ fargate:
   vpc:
     assignPublicIp: true
     securityGroupIds:
-      - ${self:custom.vpc.defaultSecurityGroup}
+      - Fn::GetAtt: [SecurityGroup0, GroupId]
     subnetIds:
-      - ${self:custom.vpc.defaultSubnetId}
+      - Fn::GetAtt: [Subnet1, SubnetId]
   tasks:
     rds-express-fargate-task:
       name: rds-express-fargate-task
@@ -46,7 +42,7 @@ fargate:
         securityGroupIds:
           - Fn::GetAtt: [SecurityGroup0, GroupId]
         subnetIds:
-          - ${self:custom.vpc.defaultSubnetId}
+          - Fn::GetAtt: [Subnet1, SubnetId]
         assignPublicIp: true
       service:
         desiredCount: 1
@@ -59,23 +55,87 @@ fargate:
 
 resources:
   Resources:
+    Express-VPC:
+      Type: AWS::EC2:VPC
+      Properties: 
+        CidrBlock: 10.0.0.0/24
+
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+
+    AttachGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: 
+          Fn::GetAtt: [Express-VPC, VpcId]
+        InternetGatewayId:
+          Fn::GetAtt: [InternetGateway, InternetGatewayId]
+
+    Subnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+        CidrBlock: 10.0.0.0/28
+
+    Subnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+        CidrBlock: 10.0.0.16/28
+
     SecurityGroup0:
       Type: AWS::EC2::SecurityGroup
       Properties:
-        GroupDescription: My Security Group for Express App on Fargate
-        VpcId: vpc-0192d315eced25399
+        GroupDescription: My Security Group for express app
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
 
     SecurityGroup1:
       Type: AWS::EC2::SecurityGroup
       Properties:
         GroupDescription: My Security Group for RDS
-        VpcId: vpc-0192d315eced25399
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
         SecurityGroupIngress:
-          - CidrIp: ${self:custom.vpc.defaultCidr}
-          # - GroupId: !Ref SecurityGroup0
+          - CidrIp:
+              Fn::GetAtt: [Subnet1, CidrBlock]
             IpProtocol: tcp
             FromPort: 3306
             ToPort: 3306
+
+    PublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+
+    PrivateRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Fn::GetAtt: [Express-VPC, VpcId]
+
+    RouteToInternetGateway:
+      Type: AWS::EC2::Route
+      DependsOn: AttachGateway
+      Properties:
+        RouteTableId: !Ref PublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+
+    AssociatePublicSubnetRouteTable:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref Subnet1
+        RouteTableId: !Ref PublicRouteTable
+
+    AssociatePrivateSubnetRouteTable:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref Subnet2
+        RouteTableId: !Ref PrivateRouteTable
 
     DemoRDSMySQL:
       Type: AWS::RDS::DBInstance
@@ -89,3 +149,11 @@ resources:
         PubliclyAccessible: false
         VPCSecurityGroups:
           - Fn::GetAtt: [SecurityGroup1, GroupId]
+        DBSubnetGroupName: !Ref DemoDBSubnetGroup
+
+    DemoDBSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: Subnet Group for RDS Instance
+        SubnetIds:
+          - !Ref Subnet2
