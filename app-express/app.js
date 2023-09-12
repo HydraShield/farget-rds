@@ -21,9 +21,10 @@ const syncDatabase = async() => {
 
 console.log('Express App Starting')
 syncDatabase().then(() => {
-  app.get('/users', (req, res) => {
+  app.get('/users', async(req, res) => {
     console.log("Hello from Express")
-    res.status(200).json(User.findAll({ raw:true }))
+    const data = await User.findAll({ raw:true })
+    res.status(200).json(data)
   })
   
   app.listen(8080, () => {
