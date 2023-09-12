@@ -29,9 +29,9 @@ fargate:
   vpc:
     assignPublicIp: true
     securityGroupIds:
-      - Fn::GetAtt: [SecurityGroup0, GroupId]
+      - sg-02f592e8908c5e3de
     subnetIds:
-      - Fn::GetAtt: [Subnet1, SubnetId]
+      - subnet-0144263fc47c9300e
   tasks:
     rds-express-fargate-task:
       name: rds-express-fargate-task
@@ -40,9 +40,9 @@ fargate:
       cpu: 1024
       vpc:
         securityGroupIds:
-          - Fn::GetAtt: sg-02f592e8908c5e3de
+          - Fn::GetAtt: [SecurityGroup0, GroupId]
         subnetIds:
-          - Fn::GetAtt: subnet-0144263fc47c9300e
+          - subnet-0144263fc47c9300e
         assignPublicIp: true
       service:
         desiredCount: 1
@@ -55,6 +55,12 @@ fargate:
 
 resources:
   Resources:
+    SecurityGroup0:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: My Security Group for Express App on Fargate
+        VpcId: vpc-0192d315eced25399
+
     SecurityGroup1:
       Type: AWS::EC2::SecurityGroup
       Properties:
@@ -62,6 +68,7 @@ resources:
         VpcId: vpc-0192d315eced25399
         SecurityGroupIngress:
           - CidrIp: 172.31.16.0/20
+          # - GroupId: !Ref SecurityGroup0
             IpProtocol: tcp
             FromPort: 3306
             ToPort: 3306
