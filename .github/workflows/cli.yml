@@ -42,8 +42,8 @@ jobs:
       - name: Install serverless-fargate plugin
         run: serverless plugin install -n serverless-fargate
 
-      - name: deploy application
-        run: sls deploy --stage dev
+      # - name: deploy application
+      #   run: sls deploy --stage dev
 
-      # - name: Remove serverless stack
-      #   run: sls remove
+      - name: Remove serverless stack
+        run: sls remove
