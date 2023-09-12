@@ -73,7 +73,7 @@ resources:
         VpcId: ${self:custom.vpc.defaultVpcId}
         SecurityGroupIngress:
           # - CidrIp: ${self:custom.vpc.defaultCidr}
-          - GroupId: !Ref SecurityGroup0
+          - SourceSecurityGroupId: !Ref SecurityGroup0
             IpProtocol: tcp
             FromPort: 3306
             ToPort: 3306
