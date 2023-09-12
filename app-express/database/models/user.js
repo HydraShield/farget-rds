@@ -21,18 +21,4 @@ const User = sequelize.define('User', {
   },
 });
 
-User.sync({ alter: true })
-.then(() => {
-  console.log("Data Base Sync With User")
-  User.bulkCreate([
-    { firstName: 'Smit', lastName: 'Pethani', email: 'Smit@example.com' },
-    { firstName: 'Smit1', lastName: 'Pethani', email: 'Smit1@example.com' },
-    { firstName: 'Smit2', lastName: 'Pethani', email: 'Smit2@example.com' },
-    { firstName: 'Smit3', lastName: 'Pethani', email: 'Smit3@example.com' },
-  ]).then(() => {
-    module.exports = User;
-  })
-})
-.catch((err) => {
-  console.error(err)
-})
+module.exports = User;
