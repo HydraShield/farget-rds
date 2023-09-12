@@ -8,6 +8,7 @@ const syncDatabase = async() => {
   try {
     await User.sync({ alter: true })
     console.log("Data Base Sync With User")
+    await User.destroy({ where: {} })
     await User.bulkCreate([
       { firstName: 'Smit', lastName: 'Pethani', email: 'Smit@example.com' },
       { firstName: 'Smit1', lastName: 'Pethani', email: 'Smit1@example.com' },
