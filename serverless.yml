@@ -8,6 +8,10 @@ custom:
     database: demoRDSMysql1
     user: ${env:DB_USER}
     password: ${env:DB_PASSWORD}
+  vpc:
+    defaultSecurityGroup: sg-02f592e8908c5e3de
+    defaultSubnetId: subnet-0144263fc47c9300e
+    defaultCidr: 172.31.16.0/20
 
 provider:
   name: aws
@@ -29,9 +33,9 @@ fargate:
   vpc:
     assignPublicIp: true
     securityGroupIds:
-      - sg-02f592e8908c5e3de
+      - ${self:custom.vpc.defaultSecurityGroup}
     subnetIds:
-      - subnet-0144263fc47c9300e
+      - ${self:custom.vpc.defaultSubnetId}
   tasks:
     rds-express-fargate-task:
       name: rds-express-fargate-task
@@ -42,7 +46,7 @@ fargate:
         securityGroupIds:
           - Fn::GetAtt: [SecurityGroup0, GroupId]
         subnetIds:
-          - subnet-0144263fc47c9300e
+          - ${self:custom.vpc.defaultSubnetId}
         assignPublicIp: true
       service:
         desiredCount: 1
@@ -67,7 +71,7 @@ resources:
         GroupDescription: My Security Group for RDS
         VpcId: vpc-0192d315eced25399
         SecurityGroupIngress:
-          - CidrIp: 172.31.16.0/20
+          - CidrIp: ${self:custom.vpc.defaultCidr}
           # - GroupId: !Ref SecurityGroup0
             IpProtocol: tcp
             FromPort: 3306
