@@ -1,14 +1,15 @@
 const express = require("express")
+const User = require("./database/models/user")
 
 const app = express()
+app.use(express.json())
 
-app.get('/hello', (req, res) => {
+app.get('/users', (req, res) => {
   console.log("Hello from Express")
-  res.status(200).json({
-    id: 1,
-    name: 'smit'
-  })
+  res.status(200).json(User.findAll({ raw:true }))
 })
+
+await User.create
 
 app.listen(8080, () => {
   console.log('Express App Running on Port 8080')
