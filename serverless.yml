@@ -19,6 +19,8 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
+  deploymentBucket:
+    name: serverless-deployment-bucket-backend
   ecr:
     images:
       rds-express:
@@ -83,8 +85,8 @@ resources:
         GroupDescription: My Security Group for RDS
         VpcId: ${self:custom.vpc.defaultVpcId}
         SecurityGroupIngress:
-          # - CidrIp: ${self:custom.vpc.defaultCidr}
-          - SourceSecurityGroupId: !Ref SecurityGroup0
+          - CidrIp: ${self:custom.vpc.defaultCidr}
+          # - SourceSecurityGroupId: !Ref SecurityGroup0
             IpProtocol: tcp
             FromPort: 3306
             ToPort: 3306
