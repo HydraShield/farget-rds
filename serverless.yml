@@ -19,8 +19,8 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
-  deploymentBucket:
-    name: serverless-deployment-bucket-backend
+  # deploymentBucket:
+  #   name: serverless-deployment-bucket-backend
   ecr:
     images:
       rds-express:
