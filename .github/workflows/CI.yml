@@ -1,5 +1,5 @@
 
-name: CLI to deploy serverless application on aws
+name: CI to deploy serverless application on aws
 
 on:
   push:
