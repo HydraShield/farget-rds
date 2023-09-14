@@ -1,5 +1,6 @@
 const express = require("express")
 const User = require("./database/models/user")
+const os = require('os');
 
 const app = express()
 app.use(express.json())
@@ -25,10 +26,11 @@ syncDatabase().then(() => {
   app.get('/users', async(req, res) => {
     console.log("Hello from Express")
     const data = await User.findAll({ raw:true })
-    res.status(200).json(data)
+    res.status(200).json({...data, host: os.hostname()})
   })
   
   app.listen(8080, () => {
+    console.log(os.hostname())
     console.log('Express App Running on Port 8080')
   })
 })

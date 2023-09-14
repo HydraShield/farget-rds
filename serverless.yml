@@ -9,9 +9,9 @@ custom:
     user: ${env:DB_USER}
     password: ${env:DB_PASSWORD}
   vpc:
-    defaultVpcId: vpc-0192d315eced25399
+    defaultVpcId: vpc-02babb95598ebd55b
     defaultSecurityGroup: sg-02f592e8908c5e3de
-    defaultSubnetId: subnet-0144263fc47c9300e
+    defaultSubnetId: subnet-00958fd8a47071819
     defaultCidr: 172.31.16.0/20
 
 provider:
@@ -19,8 +19,8 @@ provider:
   runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
-  # deploymentBucket:
-  #   name: serverless-deployment-bucket-backend
+  deploymentBucket:
+    name: serverless-deployment-bucket-backend
   ecr:
     images:
       rds-express:
@@ -36,7 +36,7 @@ fargate:
   vpc:
     assignPublicIp: true
     securityGroupIds:
-      - ${self:custom.vpc.defaultSecurityGroup}
+      - Fn::GetAtt: [SecurityGroup0, GroupId]
     subnetIds:
       - ${self:custom.vpc.defaultSubnetId}
   tasks:
@@ -52,7 +52,7 @@ fargate:
           - ${self:custom.vpc.defaultSubnetId}
         assignPublicIp: true
       service:
-        desiredCount: 1
+        desiredCount: 2
         maximumPercent: 200
       cloudFormationResource:
         container:
