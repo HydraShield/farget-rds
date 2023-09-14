@@ -28,6 +28,11 @@ syncDatabase().then(() => {
     const data = await User.findAll({ raw:true })
     res.status(200).json({...data, host: os.hostname()})
   })
+
+  app.get('/', async(req, res) => {
+    console.log("Hello from Express")
+    res.status(200).json({host: os.hostname()})
+  })
   
   app.listen(8080, () => {
     console.log(os.hostname())
